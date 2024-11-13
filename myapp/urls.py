@@ -12,7 +12,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path("home/", views.chat_view, name="home"),
     path('query/history/', views.QueryHistory, name='query_history'),
-    path('FAQ/', views.FAQ, name='FAQ'),
+    path('query/FAQ/', views.FAQ, name='FAQ'),
     path('Export/PDF/', views.ExportPDF, name='export_pdf'),
     path('Export/CSV/', views.ExportCSV, name='export_csv'),
 
