@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Chat History</h2>
+    <ul class="list-group">
+        {% for chat in history %}
+        <li class="list-group-item">
+            <strong>You:</strong> {{ chat.query }}<br>
+            <strong>Bot:</strong> {{ chat.response }}<br>
+            <em>{{ chat.timestamp|date:"Y-m-d H:i" }}</em>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No chat history available.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
