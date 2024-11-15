@@ -15,6 +15,11 @@ urlpatterns = [
     path('query/FAQ/', views.FAQ, name='FAQ'),
     path('Export/PDF/', views.ExportPDF, name='export_pdf'),
     path('Export/CSV/', views.ExportCSV, name='export_csv'),
+    path('logs/own/', views.view_own_logs, name='view_own_logs'), 
+    path('logs/all/', views.view_all_logs, name='view_all_logs'), 
+    path('export_logs/csv/', views.export_csv_logs, name='export_csv_logs'),
+    path('export_logs/pdf/', views.export_pdf_logs, name='export_pdf_logs'),
+    path('test_results/', views.test_results, name='test_results'),
 
 
 

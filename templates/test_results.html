@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Test Results</h1>
+<ul class="list-group">
+    {% for result in results %}
+        <li class="list-group-item {% if result.outcome == 'test_passed' %}list-group-item-success{% elif result.outcome == 'test_failed' %}list-group-item-danger{% else %}list-group-item-warning{% endif %}">
+            <strong>{{ result.test }}</strong>: 
+            {% if result.outcome == 'test_passed' %}
+                Passed
+            {% elif result.outcome == 'test_failed' %}
+                Failed
+            {% else %}
+                Error
+            {% endif %}
+            {% if result.details %}
+                <pre>{{ result.details }}</pre>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

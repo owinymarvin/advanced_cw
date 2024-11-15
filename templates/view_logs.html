@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>All Logs</h2>
+    <p>Here are all the logs from the system:</p>
+
+    <!-- Log filter form -->
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <select name="user" class="form-control">
+                    <option value="">Select User</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}" {% if user.id == request.GET.user %}selected{% endif %}>{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="action" class="form-control" placeholder="Filter by action" value="{{ request.GET.action }}">
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">Filter Logs</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Log Table -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Timestamp</th>
+                <th>Action</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{ log.user.username }}</td>
+                    <td>{{ log.timestamp }}</td>
+                    <td>{{ log.action }}</td>
+                    <td>{{ log.details }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No logs available for this filter.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+        <div>
+            {% if logs.has_previous %}
+                <a class="btn btn-secondary" href="?page=1">First</a>
+                <a class="btn btn-secondary" href="?page={{ logs.previous_page_number }}">Previous</a>
+            {% endif %}
+            {% if logs.has_next %}
+                <a class="btn btn-secondary" href="?page={{ logs.next_page_number }}">Next</a>
+                <a class="btn btn-secondary" href="?page={{ logs.paginator.num_pages }}">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

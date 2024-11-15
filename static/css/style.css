@@ -181,3 +181,10 @@ dark-mode .jumbotron {
 .dark-mode .mode {
     background-color:grey ;
 }
+.test_passed {
+    background-color: #d4edda; /* Green background for passed tests */
+}
+
+.test_failed {
+    background-color: #f8d7da; /* Red background for failed tests */
+}
