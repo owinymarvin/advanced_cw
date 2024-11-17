@@ -86,7 +86,7 @@ def signin(request):
 def logout_view(request):
     log_action(request.user, 'LOGOUT', 'User logged out.')
     logout(request)
-    return redirect('FAQ')
+    return redirect('home')
 
 @login_required
 def chat_view(request):
@@ -252,58 +252,44 @@ def export_csv_logs(request):
     return response
 
 
+from django.shortcuts import render
 import io
 import unittest
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 
 def run_tests():
-    # Create a StringIO stream to capture the test output
     stream = io.StringIO()
-    # Discover and run tests from the tests.py file
     test_suite = unittest.defaultTestLoader.loadTestsFromName('myapp.tests')
-    # Use the stream to capture the output
     test_result = unittest.TextTestRunner(stream=stream).run(test_suite)
-    # Return the test result and the stream content
     return test_result, stream.getvalue()
 
-@login_required
+from django.http import JsonResponse
+from django.shortcuts import render
+import io
+import unittest
+
 def test_results(request):
-    test_result, test_output = run_tests()
+    """
+    Handles the test results page.
+    - On GET: Renders the test results page with a loader.
+    - On AJAX GET: Executes tests and returns results as JSON.
+    """
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # Handle the AJAX request to fetch test results
+        test_result, test_output = run_tests()
 
-    # Format the results for display
-    results = []
+        # Format the test results into JSON-compatible data
+        data = {
+            'test_output': test_output,  # Full console output of the tests
+            'failures': [{'test': failure[0], 'details': failure[1]} for failure in test_result.failures],
+            'errors': [{'test': error[0], 'details': error[1]} for error in test_result.errors],
+            'tests_run': test_result.testsRun,
+            'was_successful': test_result.wasSuccessful(),
+        }
 
-    # Collect failed tests
-    for test, error in test_result.failures:
-        results.append({
-            'test': str(test),
-            'outcome': 'test_failed',
-            'details': error
-        })
+        return JsonResponse(data)
 
-    # Collect error tests
-    for test, error in test_result.errors:
-        results.append({
-            'test': str(test),
-            'outcome': 'test_error',
-            'details': error
-        })
-
-    # Collect passed tests by checking _testsRun attribute against failures and errors
-    all_tests = {str(test) for test in test_result._testsRun}
-    failed_tests = {str(t[0]) for t in test_result.failures + test_result.errors}
-    passed_tests = all_tests - failed_tests
-
-    for test in passed_tests:
-        results.append({
-            'test': test,
-            'outcome': 'test_passed',
-            'details': None  # No error details for passed tests
-        })
-
-    return render(request, 'test_results.html', {'results': results})
-
+    # For regular GET, render the test results page with a loader
+    return render(request, 'test_results.html')
 
 
 

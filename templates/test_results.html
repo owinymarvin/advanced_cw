@@ -1,22 +1,122 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Test Results</h1>
-<ul class="list-group">
-    {% for result in results %}
-        <li class="list-group-item {% if result.outcome == 'test_passed' %}list-group-item-success{% elif result.outcome == 'test_failed' %}list-group-item-danger{% else %}list-group-item-warning{% endif %}">
-            <strong>{{ result.test }}</strong>: 
-            {% if result.outcome == 'test_passed' %}
-                Passed
-            {% elif result.outcome == 'test_failed' %}
-                Failed
-            {% else %}
-                Error
-            {% endif %}
-            {% if result.details %}
-                <pre>{{ result.details }}</pre>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+<div id="results-container" style="text-align: center; padding: 0; margin: 0; position: relative; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <!-- Loader Spinner, centered on screen -->
+    <div id="loader" style="display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; margin: 0;">
+        <div class="spinner"></div>
+        <div class="loader-text" style="font-size: 24px; color: #333; margin-top: 0px;">Tests are running... Please wait.</div>
+    </div>
+
+    <!-- Test Results Section -->
+    <div id="test-results" style="display: none; text-align: left; margin-top: 0px;">
+        <!-- Results will be dynamically inserted here -->
+    </div>
+</div>
+
+<style>
+    /* Reset global margins and paddings */
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+
+    /* Style for Bigger Circular Loader */
+    .spinner {
+        width: 100px;  /* Increased size */
+        height: 100px; /* Increased size */
+        border: 10px solid #f3f3f3;
+        border-top: 10px solid #3498db;
+        border-radius: 50%;
+        animation: spin 2s linear infinite;
+        margin: 0; /* Remove any default margin */
+    }
+
+    /* Centering the spinner and text */
+    #loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0; /* Remove any default margin */
+    }
+
+    /* Spinner Animation */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Styling for loader text */
+    .loader-text {
+        font-size: 24px; /* Increased text size */
+        color: #333;
+        margin-top: 10px; /* Small space between spinner and text */
+    }
+
+    /* Basic Styling for Test Results */
+    #test-results h2, #test-results h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    #test-results p, #test-results ul {
+        font-size: 16px;
+        color: #555;
+    }
+
+    #test-results ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    #test-results li {
+        margin-bottom: 5px;
+    }
+</style>
+
+<script>
+    // Run this after the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        // Make an AJAX request to fetch the test results
+        fetch(window.location.href, {
+            headers: {
+                'x-requested-with': 'XMLHttpRequest' // Marks this request as an AJAX call
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide the loader
+            document.getElementById('loader').style.display = 'none';
+
+            // Show the results container
+            const resultsContainer = document.getElementById('test-results');
+            resultsContainer.style.display = 'block';
+
+            // Populate the results
+            let resultsHtml = `
+                <h2>Test Results</h2>
+                <p><strong>Tests Run:</strong> ${data.tests_run}</p>
+                <p><strong>Successful:</strong> ${data.was_successful ? 'Yes' : 'No'}</p>
+                <h3>Failures</h3>
+                <ul>
+                    ${data.failures.map(f => `<li><strong>${f.test}</strong>: ${f.details}</li>`).join('')}
+                </ul>
+                <h3>Errors</h3>
+                <ul>
+                    ${data.errors.map(e => `<li><strong>${e.test}</strong>: ${e.details}</li>`).join('')}
+                </ul>
+                <h3>Console Output</h3>
+                <pre style="background-color: #f4f4f4; padding: 10px; border-radius: 5px;">${data.test_output}</pre>
+            `;
+            resultsContainer.innerHTML = resultsHtml;
+        })
+        .catch(err => {
+            console.error('Error fetching test results:', err);
+        });
+    });
+</script>
 {% endblock %}
